@@ -39,5 +39,9 @@ In response to the server throttling control, I have added a circuit breaker in 
 ## Result
 ### Light Load
 Under light load, as long as the queue size is less than the lower-bound, the server should not reject any post request from client. During this test, the client only produce on thread to make request.
+![Alt text](https://github.com/zhan-xl/CS6650-a3/blob/e088b6ff3c35f2cf5f26008a2eb7631f98e4bec1/pics/client-1.png)
+![Alt text](https://github.com/zhan-xl/CS6650-a3/blob/e088b6ff3c35f2cf5f26008a2eb7631f98e4bec1/pics/rmq-1.png)
 
-### Heavy Load
+The throughput is just around 60 per second and the message in queue is zero. The maximun response time is 149 ms which means the circuit breaker is not trigged during this test.
+### Increased Load
+Now let's try two threads in the client. 
