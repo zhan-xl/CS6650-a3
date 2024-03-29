@@ -39,9 +39,32 @@ In response to the server throttling control, I have added a circuit breaker in 
 ## Result
 ### Light Load
 Under light load, as long as the queue size is less than the lower-bound, the server should not reject any post request from client. During this test, the client only produce on thread to make request.
+
 ![Alt text](https://github.com/zhan-xl/CS6650-a3/blob/e088b6ff3c35f2cf5f26008a2eb7631f98e4bec1/pics/client-1.png)
 ![Alt text](https://github.com/zhan-xl/CS6650-a3/blob/e088b6ff3c35f2cf5f26008a2eb7631f98e4bec1/pics/rmq-1.png)
 
 The throughput is just around 60 per second and the message in queue is zero. The maximun response time is 149 ms which means the circuit breaker is not trigged during this test.
 ### Increased Load
 Now let's try two threads in the client. 
+
+![Alt text](https://github.com/zhan-xl/CS6650-a3/blob/ed0749f61f6efc1c1efd543057049c3435f025ea/pics/client-2.png)
+![Alt text](https://github.com/zhan-xl/CS6650-a3/blob/ed0749f61f6efc1c1efd543057049c3435f025ea/pics/rmq-2.png)
+
+This time we can see a little queue start to forming up. The throughput increased becasue more message is buffered to be write to the database. The bottle neck is still at the write speed of the database.
+### Four Threads
+![Alt text](https://github.com/zhan-xl/CS6650-a3/blob/ed0749f61f6efc1c1efd543057049c3435f025ea/pics/client-4.png)
+![Alt text](https://github.com/zhan-xl/CS6650-a3/blob/ed0749f61f6efc1c1efd543057049c3435f025ea/pics/rmq-4.png)
+
+With four threads in the client, we can see the queue grow to 2k and then stables aroud 1.5k to 2k. The throughput droped to 76 per sencond as the circuit breaker is triggered so the re-send need to wait longer.
+
+### Eight Threads
+
+![Alt text](https://github.com/zhan-xl/CS6650-a3/blob/ed0749f61f6efc1c1efd543057049c3435f025ea/pics/client-8.png)
+![Alt text](https://github.com/zhan-xl/CS6650-a3/blob/ed0749f61f6efc1c1efd543057049c3435f025ea/pics/rmq-8.png)
+
+There is not a huge difference in thoughput compare to 4 threads. Since the bottle neck is the databse, enventually increasing thread in the client would not get any benefit. One thing to note is that the circuit breaker will only send the same request 5 times. So if the server is busy for a very long time, there is a chance that some of the request will fail.
+
+## Conclusion
+As current state, the database remains the bottle neck for the system. MongoDB provide a shard service which enables multiple instances for write. Also bulk write is faster than writing single documents. If the business logic allows us to buffer the lift ride info and then we can impove the write performance.
+
+Although I implemented the channel pool and connection in the server and database, unfortunatly we did not take advantage of that.
