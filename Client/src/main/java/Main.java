@@ -26,7 +26,7 @@ public class Main {
     String baseUrl = "http://18.236.186.127:8080/Server-1.0-XiaolinZhan/skiers";
 
     PostRequestService postService = new PostRequestServiceBuilder().setBaseUrl(baseUrl)
-        .setNumOfRequests(20000).setRequestPerConsumer(100).setNThreads(1).build();
+        .setNumOfRequests(10000).setRequestPerConsumer(100).setNThreads(1).build();
     postService.makePostRequest();
     WriterService writerService = new WriterService(postService.getResponseList());
     writerService.writeFile();
